@@ -1,11 +1,7 @@
-import React from "react";
 import {render} from "react-dom";
+import App from "./CurrencyExchanger/App";
 
 const node = document.createElement("div");
 
 document.body.appendChild(node);
-
-render(
-    <h1>Test</h1>,
-    node,
-);
+render(<App />, node);
