@@ -5,17 +5,11 @@ import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
 import {styled} from "@material-ui/styles";
 import ExchangeRate from "../ExchangeRate";
-import WithdrawWallet from "../WithdrawWallet";
+import WithdrawWallet from "../ExchangeWallet";
 import Slides from "../Slides";
 
 const Container = styled(Paper)({
     position: "relative",
-});
-
-const Overlay = styled(Box)({
-    position: "absolute",
-    zIndex: 1,
-    width: "100%",
 });
 
 const renderWallets = (symbol, bg, height) => (
@@ -24,6 +18,7 @@ const renderWallets = (symbol, bg, height) => (
     onChangeIndex,
     amount,
     onChange,
+    onFocus,
 ) => (
     <Slides
         index={index}
@@ -38,6 +33,7 @@ const renderWallets = (symbol, bg, height) => (
                 symbol={symbol}
                 currency={currency}
                 amount={(i === index) ? amount : 0}
+                onFocus={onFocus}
                 onChange={(i === index) ? onChange : null}
             />
         ))}
@@ -61,6 +57,8 @@ const Exchanger = ({
     transferAmt,
     onWithdrawCurrChange,
     onTransferCurrChange,
+    onFocusWithdrawAmt,
+    onFocusTransferAmt,
     onWithdrawAmtChange,
     onTransferAmtChange,
     onExchangeClick,
@@ -87,6 +85,7 @@ const Exchanger = ({
         (amount) => {
             onWithdrawAmtChange(amount);
         },
+        onFocusWithdrawAmt,
     );
     const transferIndex = currencies.indexOf(transferCurr);
     const transferWallets = renderTransferWallets(
@@ -99,6 +98,7 @@ const Exchanger = ({
         (amount) => {
             onTransferAmtChange(amount);
         },
+        onFocusTransferAmt,
     );
 
     return (
@@ -110,15 +110,31 @@ const Exchanger = ({
                 <Box position="absolute" right={8} top={8} zIndex={2}>
                     {exchangeButton}
                 </Box>
-                <Grid item>
+                <Grid item data-test="withdraw-wallets">
                     {withdrawWallets}
                 </Grid>
-                <Grid item>
+                <Grid item data-test="transfer-wallets">
                     {transferWallets}
                 </Grid>
             </Grid>
         </Container>
     );
+};
+
+Exchanger.propTypes = {
+    currencies: PropTypes.arrayOf(PropTypes.string).isRequired,
+    disabled: PropTypes.bool.isRequired,
+    withdrawCurr: PropTypes.string.isRequired,
+    transferCurr: PropTypes.string.isRequired,
+    withdrawAmt: PropTypes.number.isRequired,
+    transferAmt: PropTypes.number.isRequired,
+    onFocusWithdrawAmt: PropTypes.func.isRequired,
+    onFocusTransferAmt: PropTypes.func.isRequired,
+    onWithdrawCurrChange: PropTypes.func.isRequired,
+    onTransferCurrChange: PropTypes.func.isRequired,
+    onWithdrawAmtChange: PropTypes.func.isRequired,
+    onTransferAmtChange: PropTypes.func.isRequired,
+    onExchangeClick: PropTypes.func.isRequired,
 };
 
 export default Exchanger;

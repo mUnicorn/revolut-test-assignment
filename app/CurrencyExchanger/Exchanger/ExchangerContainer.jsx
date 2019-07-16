@@ -6,49 +6,78 @@ const ExchangerContainer = () => {
     const {rates, getRatesPolling} = React.useContext(FxRatesContext);
     const {funds, changeFunds} = React.useContext(WalletsContext);
     const currencies = Object.keys(funds);
+    const [state, setState] = React.useState({
+        withdrawCurr: currencies[0],
+        transferCurr: currencies[1],
+        amount: 0,
+        changing: null,
+    });
 
-    const [withdrawAmt, setWithdrawAmt] = React.useState(0);
-    const [withdrawCurr, setWithdrawCurr] = React.useState(currencies[0]);
-    const [transferCurr, setTransferCurr] = React.useState(currencies[1]);
+    const changeRates = rates[state.withdrawCurr];
+    const changeRate = (changeRates && changeRates[state.transferCurr]);
 
-    const changeRates = rates[withdrawCurr];
-    const changeRate = changeRates && changeRates[transferCurr];
-    const transferAmt = (changeRate) ?
-        withdrawAmt * changeRate :
-        0;
+    const withdrawAmt = (state.changing === "transfer" && changeRate) ?
+        state.amount / changeRate :
+        state.amount;
 
-    const setTransferAmt = (amount) => {
-        setWithdrawAmt(amount / changeRate);
-    };
+    const transferAmt = (state.changing === "withdraw" && changeRate) ?
+        state.amount * changeRate :
+        state.amount;
 
     React.useEffect(() => {
-        getRatesPolling({base: withdrawCurr});
-    }, [withdrawCurr]);
+        getRatesPolling({base: state.withdrawCurr});
+    }, [state.withdrawCurr]);
 
     const exchange = () => {
-        changeFunds(withdrawCurr, -withdrawAmt);
-        changeFunds(transferCurr, transferAmt);
-        setWithdrawAmt(0);
+        changeFunds(state.withdrawCurr, -withdrawAmt);
+        changeFunds(state.transferCurr, transferAmt);
+        setState({...state, amount: 0});
     };
 
     const disabled = (
         !changeRate ||
         !withdrawAmt ||
-        (withdrawCurr === transferCurr)
+        (state.withdrawCurr === state.transferCurr)
     );
+
+    const onChangeWithdrawCurr = (withdrawCurr) => {
+        setState({...state, withdrawCurr});
+    };
+
+    const onChangeTransferCurr = (transferCurr) => {
+        setState({...state, transferCurr});
+    };
+
+    const onChangeWithdrawAmt = (amount) => {
+        setState({...state, amount, changing: "withdraw"});
+    };
+
+    const onChangeTransferAmt = (amount) => {
+        setState({...state, amount, changing: "transfer"});
+    };
+
+    const onFocusWithdrawAmt = () => {
+        setState({...state, amount: withdrawAmt, changing: "withdraw"});
+    };
+
+    const onFocusTransferAmt = () => {
+        setState({...state, amount: transferAmt, changing: "transfer"});
+    };
 
     return (
         <Exchanger
-            currencies={currencies}
-            withdrawCurr={withdrawCurr}
-            transferCurr={transferCurr}
             disabled={disabled}
+            currencies={currencies}
+            withdrawCurr={state.withdrawCurr}
+            transferCurr={state.transferCurr}
             withdrawAmt={withdrawAmt}
             transferAmt={transferAmt}
-            onWithdrawCurrChange={setWithdrawCurr}
-            onTransferCurrChange={setTransferCurr}
-            onWithdrawAmtChange={setWithdrawAmt}
-            onTransferAmtChange={setTransferAmt}
+            onWithdrawCurrChange={onChangeWithdrawCurr}
+            onTransferCurrChange={onChangeTransferCurr}
+            onFocusWithdrawAmt={onFocusWithdrawAmt}
+            onFocusTransferAmt={onFocusTransferAmt}
+            onWithdrawAmtChange={onChangeWithdrawAmt}
+            onTransferAmtChange={onChangeTransferAmt}
             onExchangeClick={exchange}
         />
     );

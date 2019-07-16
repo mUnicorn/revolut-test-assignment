@@ -11,7 +11,7 @@ const ExchageRate = ({src, dst}) => {
         null;
 
     return (
-        <Fade in={dstValue}>
+        <Fade in={Boolean(dstValue)}>
             <Chip
                 variant="outlined"
                 label={(
@@ -20,13 +20,17 @@ const ExchageRate = ({src, dst}) => {
                             value={1}
                             style="currency"
                             currency={src}
+                            data-test="src-currency"
                         />
                         {"\u00A0=\u00A0"}
-                        <FormattedNumber
-                            value={dstValue}
-                            style="currency"
-                            currency={dst}
-                        />
+                        {dstValue != null && (
+                            <FormattedNumber
+                                value={dstValue}
+                                style="currency"
+                                currency={dst}
+                                data-test="dst-currency"
+                            />
+                        )}
                     </Typography>
                 )}
             />

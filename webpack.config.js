@@ -7,7 +7,7 @@ module.exports = {
 
     output: {
         path: path.resolve(__dirname, "dist", "app"),
-        filename: "index.js"
+        filename: "index.js",
     },
 
     resolve: {
@@ -18,25 +18,30 @@ module.exports = {
         rules: [{
             test: /\.(js|jsx)$/,
             exclude: /node_modules/,
-            use: ["babel-loader", "eslint-loader"]
-        }]
+            use: ["babel-loader", {
+                loader: "eslint-loader",
+                options: {
+                    quiet: true,
+                },
+            }],
+        }],
     },
 
     plugins: [
         new ProvidePlugin({
             React: "react",
-            PropTypes: "prop-types"
+            PropTypes: "prop-types",
         }),
 
         new HtmlWebpackPlugin({
-            template: "app/index.html"
-        })
+            template: "app/index.html",
+        }),
     ],
 
     devServer: {
         contentBase: path.join(__dirname, "dist"),
-        port: 1337
+        port: 1337,
     },
 
-    devtool: "source-map"
+    devtool: "source-map",
 };

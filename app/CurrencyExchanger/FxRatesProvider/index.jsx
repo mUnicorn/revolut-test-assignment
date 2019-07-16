@@ -1,3 +1,4 @@
+import debounce from "lodash/debounce";
 import {getFxRates} from "./api";
 
 export const FxRatesContext = React.createContext({
@@ -16,13 +17,14 @@ export default class FxRatesProvider extends React.Component {
         super(props);
         this.state = {
             rates: {},
-            polling: {},
-            getRatesPolling: this.getRatesPolling,
+            polling: null,
+            getRatesPolling: debounce(this.getRatesPolling, 600),
         };
     }
 
     getRates = ({base}) => {
         getFxRates({base})
+            .then((res) => res.json())
             .then(({rates}) => {
                 this.setState((state) => ({
                     rates: {...state.rates, [base]: rates},
@@ -38,6 +40,18 @@ export default class FxRatesProvider extends React.Component {
 
     getRatesPolling = (...args) => {
         this.getRates(...args);
+
+        const {polling} = this.state;
+
+        clearTimeout(polling);
+
+        const newPolling = setInterval(() => {
+            this.getRates(...args);
+        }, 10000);
+
+        this.setState({
+            polling: newPolling,
+        });
     };
 
     render = () => (

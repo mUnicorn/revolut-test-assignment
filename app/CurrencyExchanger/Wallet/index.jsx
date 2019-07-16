@@ -23,6 +23,7 @@ const Wallet = ({currency, children}) => {
                         variant="h3"
                         component="p"
                         align="left"
+                        data-test="wallet-currency"
                     >
                         {currency}
                     </Typography>
@@ -40,6 +41,7 @@ const Wallet = ({currency, children}) => {
                                     style="currency"
                                     value={funds}
                                     currency={currency}
+                                    data-test="wallet-funds"
                                 />,
                             }}
                         />
